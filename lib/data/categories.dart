@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:shopping_list/models/category.dart';
+import 'package:shoppy/models/category.dart';
 
 const categories = {
+  // enum.value
   Categories.vegetables: Category(
     'Vegetables',
     Color.fromARGB(255, 0, 255, 128),
