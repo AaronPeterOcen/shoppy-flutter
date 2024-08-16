@@ -17,6 +17,7 @@ class _ShoppingItemsState extends State<ShoppingItems> {
   // final Category category;
   void _addItems() {
     Navigator.of(context).push(
+      // to change the screen
       MaterialPageRoute(
         builder: (context) => const NewItem(),
       ),

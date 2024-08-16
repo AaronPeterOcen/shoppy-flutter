@@ -27,8 +27,16 @@ class _NewItemState extends State<NewItem> {
                 decoration: const InputDecoration(
                   label: Text('Name'),
                 ),
+                // validation logic for the form field
+
                 validator: (value) {
-                  return ('data...');
+                  if (value == null ||
+                      value.isEmpty ||
+                      value.trim().length <= 1 ||
+                      value.trim().length > 50) {
+                    return "Must be a range of 1 to 50 characters";
+                  }
+                  return null;
                 },
               ),
               Row(
@@ -40,6 +48,16 @@ class _NewItemState extends State<NewItem> {
                         label: Text('Quantity'),
                       ),
                       initialValue: '1',
+                      // validation logic for the form field
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            int.tryParse(value) == null ||
+                            int.tryParse(value)! <= 0) {
+                          return "Must be a valid +ve number";
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 5),
