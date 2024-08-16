@@ -17,7 +17,34 @@ class _NewItemState extends State<NewItem> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(13),
-        child: const Text('form field'),
+        child: Form(
+          child: Column(
+            children: [
+              TextFormField(
+                // since we are using a form
+                maxLength: 50,
+                decoration: const InputDecoration(
+                  label: Text('Name'),
+                ),
+                validator: (value) {
+                  return ('data...');
+                },
+              ),
+              Row(
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      label: Text('Quantity'),
+                    ),
+                    initialValue: '1',
+                  ),
+                  const SizedBox(width: 5),
+                  DropdownButton(items: items, onChanged: onChanged)
+                ],
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
