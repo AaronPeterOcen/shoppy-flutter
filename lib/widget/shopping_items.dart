@@ -1,20 +1,39 @@
 // import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shoppy/data/dummy_items.dart';
+import 'package:shoppy/widget/new_item.dart';
 
 // StatelessWidget
-class ShoppingItems extends StatelessWidget {
+class ShoppingItems extends StatefulWidget {
   const ShoppingItems({
     super.key,
   });
 
+  @override
+  State<ShoppingItems> createState() => _ShoppingItemsState();
+}
+
+class _ShoppingItemsState extends State<ShoppingItems> {
   // final Category category;
+  void _addItems() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const NewItem(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Shopping List'),
+        actions: [
+          IconButton(
+            onPressed: _addItems,
+            icon: const Icon(Icons.add_outlined),
+          )
+        ],
       ),
       body: ListView.builder(
         itemCount: groceryItems.length,
