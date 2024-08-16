@@ -9,6 +9,14 @@ class NewItem extends StatefulWidget {
 }
 
 class _NewItemState extends State<NewItem> {
+  // Define a GlobalKey to access the form's state
+  final _formKey = GlobalKey<FormState>();
+
+  void _saveItem() {
+    // Trigger form validation using the GlobalKey to access the current state of the form
+    _formKey.currentState!.validate();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,6 +27,7 @@ class _NewItemState extends State<NewItem> {
       body: Padding(
         padding: const EdgeInsets.all(13),
         child: Form(
+          key: _formKey,
           child: Column(
             children: [
               TextFormField(
@@ -48,6 +57,7 @@ class _NewItemState extends State<NewItem> {
                         label: Text('Quantity'),
                       ),
                       initialValue: '1',
+                      keyboardType: const TextInputType.numberWithOptions(),
                       // validation logic for the form field
                       validator: (value) {
                         if (value == null ||
@@ -90,10 +100,16 @@ class _NewItemState extends State<NewItem> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(onPressed: () {}, child: const Text('Reset')),
+                  TextButton(
+                      onPressed: () {
+                        _formKey.currentState!.reset();
+                      },
+                      child: const Text('Reset')),
                   const SizedBox(width: 5),
                   ElevatedButton(
-                      onPressed: () {}, child: const Text('Add item'))
+                    onPressed: _saveItem,
+                    child: const Text('Add item'),
+                  )
                 ],
               )
             ],
