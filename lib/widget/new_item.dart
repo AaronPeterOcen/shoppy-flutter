@@ -22,7 +22,8 @@ class _NewItemState extends State<NewItem> {
   var _enteredQuantity = 1;
   var _selectedValue = categories[Categories.dairy]!;
 
-  void _saveItem() {
+  void _saveItem() async {
+    //using async to receive a response from the backend
     // Trigger form validation using the GlobalKey to access the current state of the form
     if (_formKey.currentState!.validate()) {
       // saving the entered values from the from
@@ -34,7 +35,7 @@ class _NewItemState extends State<NewItem> {
       );
 
 // Make an HTTP POST request to the Firebase Realtime Database
-      http.post(
+      final response = await http.post(
         url, // The constructed URL
         headers: {
           'Content-type':
@@ -48,17 +49,19 @@ class _NewItemState extends State<NewItem> {
           },
         ),
       );
+      print(response.body);
+      print(response.statusCode);
 
       // print(_enteredName);
-      // Navigator.of(context).pop(
-      //   //creates a new Grocery item and passes it back to the shopping_item.dart screen
-      //   GroceryItem(
-      //     id: DateTime.now().toString(),
-      //     name: _enteredName,
-      //     quantity: _enteredQuantity,
-      //     category: _selectedValue,
-      //   ),
-      // );
+      Navigator.of(context).pop(
+          //creates a new Grocery item and passes it back to the shopping_item.dart screen
+          // GroceryItem(
+          //   id: DateTime.now().toString(),
+          //   name: _enteredName,
+          //   quantity: _enteredQuantity,
+          //   category: _selectedValue,
+          // ),
+          );
     }
   }
 
