@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shoppy/data/categories.dart';
 import 'package:shoppy/models/category.dart';
 import 'package:shoppy/models/grocery_item.dart';
+import 'package:http/http.dart'
+    as http; // adding the package to be used with firebase
 // import 'package:shoppy/widget/shopping_items.dart';
 
 class NewItem extends StatefulWidget {
@@ -23,16 +27,38 @@ class _NewItemState extends State<NewItem> {
     if (_formKey.currentState!.validate()) {
       // saving the entered values from the from
       _formKey.currentState!.save();
-      // print(_enteredName);
-      Navigator.of(context).pop(
-        //creates a new Grocery item and passes it back to the shopping_item.dart screen
-        GroceryItem(
-          id: DateTime.now().toString(),
-          name: _enteredName,
-          quantity: _enteredQuantity,
-          category: _selectedValue,
+      // Construct the URL for the Firebase Realtime Database
+      final url = Uri.https(
+        'flutter-prp-ce8a6-default-rtdb.firebaseio.com', // The base URL for the Firebase Realtime Database
+        'shoppy.json', // The endpoint for the specific resource (in this case, 'shoppy')
+      );
+
+// Make an HTTP POST request to the Firebase Realtime Database
+      http.post(
+        url, // The constructed URL
+        headers: {
+          'Content-type':
+              'application/json', // Specifies that the content type of the request is JSON
+        },
+        body: jsonEncode(
+          {
+            'name': _enteredName, // The name entered by the user
+            'quantity': _enteredQuantity, // The quantity entered by the user
+            'category': _selectedValue.id, // The ID of the selected category
+          },
         ),
       );
+
+      // print(_enteredName);
+      // Navigator.of(context).pop(
+      //   //creates a new Grocery item and passes it back to the shopping_item.dart screen
+      //   GroceryItem(
+      //     id: DateTime.now().toString(),
+      //     name: _enteredName,
+      //     quantity: _enteredQuantity,
+      //     category: _selectedValue,
+      //   ),
+      // );
     }
   }
 

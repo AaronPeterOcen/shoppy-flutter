@@ -8,10 +8,10 @@ import 'package:shoppy/widget/new_item.dart';
 class ShoppingItems extends StatefulWidget {
   const ShoppingItems({
     super.key,
-    required this.onRemoveItem,
+    // required this.onRemoveItem,
   });
 
-  final void Function(GroceryItem _shoppingItems) onRemoveItem;
+  // final void Function(GroceryItem _shoppingItems) onRemoveItem;
 
   @override
   State<ShoppingItems> createState() => _ShoppingItemsState();
@@ -37,8 +37,41 @@ class _ShoppingItemsState extends State<ShoppingItems> {
     });
   }
 
+  void _removeItem(item) {
+    setState(() {
+      _shoppingItems.remove(item);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    Widget content = const Center(
+      child: Text('No items have been added yet'),
+    );
+
+    if (_shoppingItems.isNotEmpty) {
+      content = ListView.builder(
+        itemCount: _shoppingItems.length,
+        itemBuilder: (context, index) => Dismissible(
+          onDismissed: (direction) {
+            _removeItem(_shoppingItems[index]);
+          },
+          key: ValueKey(_shoppingItems[index]),
+          child: ListTile(
+            title: Text(_shoppingItems[index].name),
+            leading: Container(
+              width: 20,
+              height: 20,
+              color: _shoppingItems[index].category.color,
+            ),
+            trailing: Text(
+              _shoppingItems[index].quantity.toString(),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Shopping List'),
@@ -49,25 +82,7 @@ class _ShoppingItemsState extends State<ShoppingItems> {
           )
         ],
       ),
-      body: ListView.builder(
-        itemCount: _shoppingItems.length,
-        itemBuilder: (context, index) => Dismissible(
-          key: ValueKey(_shoppingItems[index]),
-          onDismissed: (direction) {
-            onRemoveItem(_shoppingItems[index]);
-          },
-          child: ListTile(
-              title: Text(_shoppingItems[index].name),
-              leading: Container(
-                width: 20,
-                height: 20,
-                color: _shoppingItems[index].category.color,
-              ),
-              trailing: Text(
-                _shoppingItems[index].quantity.toString(),
-              )),
-        ),
-      ),
+      body: content,
     );
   }
 }
