@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shoppy/data/categories.dart';
 import 'package:shoppy/models/category.dart';
-import 'package:shoppy/models/grocery_item.dart';
 import 'package:http/http.dart'
     as http; // adding the package to be used with firebase
 // import 'package:shoppy/widget/shopping_items.dart';

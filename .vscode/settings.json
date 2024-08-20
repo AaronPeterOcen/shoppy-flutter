@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["shoppy"]
+  "cSpell.words": ["shoppy"],
+  "java.compile.nullAnalysis.mode": "automatic"
 }
