@@ -1,6 +1,6 @@
 # shoppy
 
-A new Flutter project.
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
 
 ## Getting Started
 
@@ -17,4 +17,11 @@ samples, guidance on mobile development, and a full API reference.
 
 # shoppy-flutter
 
-lorem5
+## Installation
+
+To install the required dependencies, run: :arrow_right_hook:
+
+```bash
+flutter pub get
+
+```
