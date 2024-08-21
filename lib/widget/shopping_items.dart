@@ -25,6 +25,7 @@ class ShoppingItems extends StatefulWidget {
 class _ShoppingItemsState extends State<ShoppingItems> {
   List<GroceryItem> _shoppingItems = [];
   var _isLoading = true;
+  String? _error;
   // final Category category;
   @override
   void initState() {
@@ -39,6 +40,13 @@ class _ShoppingItemsState extends State<ShoppingItems> {
     );
     final response =
         await http.get(url); // to return the data and save it to the response
+
+    if (response.statusCode >= 400) {
+      // checling for errors and showing a message
+      setState(() {
+        _error = 'Error 404, Page not found';
+      });
+    }
 
     // Parse the JSON response to convert it into a Map of items,
 // where each key is the item ID and the value is a Map containing
@@ -138,6 +146,10 @@ class _ShoppingItemsState extends State<ShoppingItems> {
           ),
         ),
       );
+    }
+
+    if (_error != null) {
+      content = Center(child: Text(_error!));
     }
 
     return Scaffold(
