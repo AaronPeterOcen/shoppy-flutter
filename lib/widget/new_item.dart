@@ -51,7 +51,9 @@ class _NewItemState extends State<NewItem> {
       print(response.body);
       print(response.statusCode);
 
-      // print(_enteredName);
+      if (!context.mounted) {
+        return;
+      }
       Navigator.of(context).pop(
           //creates a new Grocery item and passes it back to the shopping_item.dart screen
           // GroceryItem(
@@ -61,6 +63,8 @@ class _NewItemState extends State<NewItem> {
           //   category: _selectedValue,
           // ),
           );
+
+      // print(_enteredName);
     }
   }
 
