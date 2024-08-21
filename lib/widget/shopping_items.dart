@@ -48,6 +48,14 @@ class _ShoppingItemsState extends State<ShoppingItems> {
       });
     }
 
+    if (response.body == 'null') {
+      // if no items are stored in the backend
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
     // Parse the JSON response to convert it into a Map of items,
 // where each key is the item ID and the value is a Map containing
 // the item's details (name, quantity, category).
