@@ -111,7 +111,26 @@ class _ShoppingItemsState extends State<ShoppingItems> {
     //   });
   }
 
-  void _removeItem(item) {
+  void _removeItem(GroceryItem item) async {
+    final index = _shoppingItems.indexOf(item);
+    setState(() {
+      _shoppingItems.remove(item); // remove the items if no error is faced
+    });
+
+    final url = Uri.https(
+      'flutter-prp-ce8a6-default-rtdb.firebaseio.com', // The base URL for the Firebase Realtime Database
+      'shoppy/${item.id}.json', // The endpoint for the specific resource (in this case, 'shoppy')
+    );
+
+    final response = await http.delete(url);
+
+    if (response.statusCode >= 400) {
+      setState(() {
+        _shoppingItems.insert(
+            index, item); // add the deleted item back incase of an error
+      });
+    }
+
     setState(() {
       _shoppingItems.remove(item);
     });
