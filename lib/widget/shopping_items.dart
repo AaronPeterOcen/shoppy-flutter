@@ -41,55 +41,62 @@ class _ShoppingItemsState extends State<ShoppingItems> {
     final response =
         await http.get(url); // to return the data and save it to the response
 
-    if (response.statusCode >= 400) {
-      // checling for errors and showing a message
-      setState(() {
-        _error = 'Error 404, Page not found';
-      });
-    }
+    try {
+      if (response.statusCode >= 400) {
+        // checling for errors and showing a message
+        setState(() {
+          _error = 'Error 404, Page not found';
+        });
+      }
 
-    if (response.body == 'null') {
-      // if no items are stored in the backend
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
+      if (response.body == 'null') {
+        // if no items are stored in the backend
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
-    // Parse the JSON response to convert it into a Map of items,
+      // Parse the JSON response to convert it into a Map of items,
 // where each key is the item ID and the value is a Map containing
 // the item's details (name, quantity, category).
-    final Map<String, dynamic> listItemData = jsonDecode(response.body);
+      final Map<String, dynamic> listItemData = jsonDecode(response.body);
 
 // Create an empty list to store the loaded GroceryItem objects.
-    // ignore: no_leading_underscores_for_local_identifiers
-    final List<GroceryItem> _loadedItems = [];
+      // ignore: no_leading_underscores_for_local_identifiers
+      final List<GroceryItem> _loadedItems = [];
 
 // Iterate through each entry (item) in the listItemData map.
-    for (final list in listItemData.entries) {
-      // Find the category object that matches the category ID in the current item's data.
-      // 'categories' is assumed to be a Map where keys are category names
-      // and values are category objects containing an 'id'.
-      final category = categories.entries
-          .firstWhere((catItem) => (catItem.value.id == list.value['category']))
-          .value;
+      for (final list in listItemData.entries) {
+        // Find the category object that matches the category ID in the current item's data.
+        // 'categories' is assumed to be a Map where keys are category names
+        // and values are category objects containing an 'id'.
+        final category = categories.entries
+            .firstWhere(
+                (catItem) => (catItem.value.id == list.value['category']))
+            .value;
 
-      // Create a new GroceryItem object with the item details (id, name, quantity, category),
-      // and add it to the _loadedItems list.
-      _loadedItems.add(GroceryItem(
-        id: list.key,
-        name: list.value['name'],
-        quantity: list.value['quantity'],
-        category: category,
-      ));
-    }
+        // Create a new GroceryItem object with the item details (id, name, quantity, category),
+        // and add it to the _loadedItems list.
+        _loadedItems.add(GroceryItem(
+          id: list.key,
+          name: list.value['name'],
+          quantity: list.value['quantity'],
+          category: category,
+        ));
+      }
 
 // Update the state of the widget by setting _shoppingItems to the newly loaded list of GroceryItem objects.
 // This triggers a rebuild of the widget, ensuring the UI displays the updated list of shopping items.
-    setState(() {
-      _shoppingItems = _loadedItems;
-      _isLoading = false;
-    });
+      setState(() {
+        _shoppingItems = _loadedItems;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Try again later, Page not found';
+      });
+    }
   }
 
   void _addItems() async {
