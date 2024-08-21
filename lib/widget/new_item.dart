@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shoppy/data/categories.dart';
 import 'package:shoppy/models/category.dart';
-import 'package:http/http.dart'
-    as http; // adding the package to be used with firebase
+import 'package:http/http.dart' as http;
+import 'package:shoppy/models/grocery_item.dart'; // adding the package to be used with firebase
 // import 'package:shoppy/widget/shopping_items.dart';
 
 class NewItem extends StatefulWidget {
@@ -48,21 +48,21 @@ class _NewItemState extends State<NewItem> {
           },
         ),
       );
-      print(response.body);
-      print(response.statusCode);
+      final Map<String, dynamic> resData = json.decode(response
+          .body); // to decode the json items and store them as map values in the var
 
       if (!context.mounted) {
         return;
       }
       Navigator.of(context).pop(
-          //creates a new Grocery item and passes it back to the shopping_item.dart screen
-          // GroceryItem(
-          //   id: DateTime.now().toString(),
-          //   name: _enteredName,
-          //   quantity: _enteredQuantity,
-          //   category: _selectedValue,
-          // ),
-          );
+        // creates a new Grocery item and passes it back to the shopping_item.dart screen
+        GroceryItem(
+          id: resData['name'],
+          name: _enteredName,
+          quantity: _enteredQuantity,
+          category: _selectedValue,
+        ),
+      );
 
       // print(_enteredName);
     }

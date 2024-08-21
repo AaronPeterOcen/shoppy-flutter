@@ -75,7 +75,7 @@ class _ShoppingItemsState extends State<ShoppingItems> {
   }
 
   void _addItems() async {
-    await Navigator.of(context).push<GroceryItem>(
+    final newItem = await Navigator.of(context).push<GroceryItem>(
       // push holds the data that maybe contained when screen is updated
       // to change the screen
       MaterialPageRoute(
@@ -83,7 +83,15 @@ class _ShoppingItemsState extends State<ShoppingItems> {
       ),
     );
 
-    _loadScreenItems();
+    if (newItem == null) {
+      return;
+    }
+
+    setState(() {
+      _shoppingItems.add(newItem);
+    });
+
+    // _loadScreenItems();
 
     // if (newItem == null) {
     //   return;
