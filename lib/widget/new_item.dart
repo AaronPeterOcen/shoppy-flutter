@@ -20,6 +20,7 @@ class _NewItemState extends State<NewItem> {
   var _enteredName = '';
   var _enteredQuantity = 1;
   var _selectedValue = categories[Categories.dairy]!;
+  var _isSending = false;
 
   void _saveItem() async {
     //using async to receive a response from the backend
@@ -27,6 +28,10 @@ class _NewItemState extends State<NewItem> {
     if (_formKey.currentState!.validate()) {
       // saving the entered values from the from
       _formKey.currentState!.save();
+      setState(() {
+        _isSending = true;
+      });
+
       // Construct the URL for the Firebase Realtime Database
       final url = Uri.https(
         'flutter-prp-ce8a6-default-rtdb.firebaseio.com', // The base URL for the Firebase Realtime Database
@@ -163,14 +168,22 @@ class _NewItemState extends State<NewItem> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                      onPressed: () {
-                        _formKey.currentState!.reset();
-                      },
+                      onPressed: _isSending
+                          ? null
+                          : () {
+                              _formKey.currentState!.reset();
+                            },
                       child: const Text('Reset')),
                   const SizedBox(width: 5),
                   ElevatedButton(
-                    onPressed: _saveItem,
-                    child: const Text('Add item'),
+                    onPressed: _isSending ? null : _saveItem,
+                    child: _isSending
+                        ? const SizedBox(
+                            height: 15,
+                            width: 15,
+                            child: CircularProgressIndicator.adaptive(),
+                          )
+                        : const Text('Add item'),
                   )
                 ],
               )

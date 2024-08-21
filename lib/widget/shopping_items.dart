@@ -24,6 +24,7 @@ class ShoppingItems extends StatefulWidget {
 
 class _ShoppingItemsState extends State<ShoppingItems> {
   List<GroceryItem> _shoppingItems = [];
+  var _isLoading = true;
   // final Category category;
   @override
   void initState() {
@@ -71,6 +72,7 @@ class _ShoppingItemsState extends State<ShoppingItems> {
 // This triggers a rebuild of the widget, ensuring the UI displays the updated list of shopping items.
     setState(() {
       _shoppingItems = _loadedItems;
+      _isLoading = false;
     });
   }
 
@@ -109,9 +111,11 @@ class _ShoppingItemsState extends State<ShoppingItems> {
 
   @override
   Widget build(BuildContext context) {
-    Widget content = const Center(
-      child: Text('No items have been added yet'),
-    );
+    Widget content = const Center(child: Text('No items have been added yet'));
+
+    if (_isLoading) {
+      content = const Center(child: CircularProgressIndicator.adaptive());
+    }
 
     if (_shoppingItems.isNotEmpty) {
       content = ListView.builder(
