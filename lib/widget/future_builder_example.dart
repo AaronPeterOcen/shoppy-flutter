@@ -24,13 +24,14 @@ class ShoppingItems extends StatefulWidget {
 
 class _ShoppingItemsState extends State<ShoppingItems> {
   List<GroceryItem> _shoppingItems = [];
-  var _isLoading = true;
+  // var _isLoading = true;
+  late Future<List<GroceryItem>> _loadedScreenItems;
   String? _error;
   // final Category category;
   @override
   void initState() {
     super.initState();
-    _loadScreenItems();
+    _loadedScreenItems = _loadScreenItems();
   }
 
   Future<List<GroceryItem>> _loadScreenItems() async {
@@ -42,6 +43,7 @@ class _ShoppingItemsState extends State<ShoppingItems> {
         await http.get(url); // to return the data and save it to the response
 
     if (response.statusCode >= 400) {
+      throw Exception('not found');
       // checking for errors and showing a message
       // setState(() {
       //   _error = 'Error 404, Page not found';
@@ -91,7 +93,7 @@ class _ShoppingItemsState extends State<ShoppingItems> {
     //   _isLoading = false;
     // });
     //when using the Future widget we use return
-    return _loadedItems;
+    return _loadScreenItems();
 
     // no longer required
     // catch (e) {
@@ -155,38 +157,17 @@ class _ShoppingItemsState extends State<ShoppingItems> {
 
   @override
   Widget build(BuildContext context) {
-    Widget content = const Center(child: Text('No items have been added yet'));
+    // if (_isLoading) {
+    //   content = const Center(child: CircularProgressIndicator.adaptive());
+    // }
 
-    if (_isLoading) {
-      content = const Center(child: CircularProgressIndicator.adaptive());
-    }
+    // if (_shoppingItems.isNotEmpty) {
+    //   content =
+    // }
 
-    if (_shoppingItems.isNotEmpty) {
-      content = ListView.builder(
-        itemCount: _shoppingItems.length,
-        itemBuilder: (context, index) => Dismissible(
-          onDismissed: (direction) {
-            _removeItem(_shoppingItems[index]);
-          },
-          key: ValueKey(_shoppingItems[index]),
-          child: ListTile(
-            title: Text(_shoppingItems[index].name),
-            leading: Container(
-              width: 20,
-              height: 20,
-              color: _shoppingItems[index].category.color,
-            ),
-            trailing: Text(
-              _shoppingItems[index].quantity.toString(),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (_error != null) {
-      content = Center(child: Text(_error!));
-    }
+    // if (_error != null) {
+    //   content = Center(child: Text(_error!));
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -198,7 +179,45 @@ class _ShoppingItemsState extends State<ShoppingItems> {
           )
         ],
       ),
-      body: content,
+      body: FutureBuilder(
+        future: _loadedScreenItems,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator.adaptive());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
+          }
+
+          if (snapshot.data!.isEmpty) {
+            return const Center(child: Text('No items have been added yet'));
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) => Dismissible(
+              onDismissed: (direction) {
+                _removeItem(snapshot.data![index]);
+              },
+              key: ValueKey(snapshot.data![index]),
+              child: ListTile(
+                title: Text(snapshot.data![index].name),
+                leading: Container(
+                  width: 20,
+                  height: 20,
+                  color: snapshot.data![index].category.color,
+                ),
+                trailing: Text(
+                  snapshot.data![index].quantity.toString(),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
