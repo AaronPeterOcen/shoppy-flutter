@@ -24,16 +24,17 @@ class ShoppingItems extends StatefulWidget {
 
 class _ShoppingItemsState extends State<ShoppingItems> {
   List<GroceryItem> _shoppingItems = [];
-  var _isLoading = true;
+  // var _isLoading = true;
+  late Future<List<GroceryItem>> _loadedScreenItems;
   String? _error;
   // final Category category;
   @override
   void initState() {
     super.initState();
-    _loadScreenItems();
+    _loadedScreenItems = _loadScreenItems();
   }
 
-  void _loadScreenItems() async {
+  Future<List<GroceryItem>> _loadScreenItems() async {
     final url = Uri.https(
       'flutter-prp-ce8a6-default-rtdb.firebaseio.com', // The base URL for the Firebase Realtime Database
       'shoppy.json', // The endpoint for the specific resource (in this case, 'shoppy')
@@ -41,62 +42,65 @@ class _ShoppingItemsState extends State<ShoppingItems> {
     final response =
         await http.get(url); // to return the data and save it to the response
 
-    try {
-      if (response.statusCode >= 400) {
-        // checling for errors and showing a message
-        setState(() {
-          _error = 'Error 404, Page not found';
-        });
-      }
+    if (response.statusCode >= 400) {
+      throw Exception('not found');
+      // checking for errors and showing a message
+      // setState(() {
+      //   _error = 'Error 404, Page not found';
+      // });
+    }
 
-      if (response.body == 'null') {
-        // if no items are stored in the backend
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
+    if (response.body == 'null') {
+      // if no items are stored in the backend
+      // setState(() {
+      //   _isLoading = false;
+      // });
+      return [];
+    }
 
-      // Parse the JSON response to convert it into a Map of items,
+    // Parse the JSON response to convert it into a Map of items,
 // where each key is the item ID and the value is a Map containing
 // the item's details (name, quantity, category).
-      final Map<String, dynamic> listItemData = jsonDecode(response.body);
+    final Map<String, dynamic> listItemData = jsonDecode(response.body);
 
 // Create an empty list to store the loaded GroceryItem objects.
-      // ignore: no_leading_underscores_for_local_identifiers
-      final List<GroceryItem> _loadedItems = [];
+    // ignore: no_leading_underscores_for_local_identifiers
+    final List<GroceryItem> _loadedItems = [];
 
 // Iterate through each entry (item) in the listItemData map.
-      for (final list in listItemData.entries) {
-        // Find the category object that matches the category ID in the current item's data.
-        // 'categories' is assumed to be a Map where keys are category names
-        // and values are category objects containing an 'id'.
-        final category = categories.entries
-            .firstWhere(
-                (catItem) => (catItem.value.id == list.value['category']))
-            .value;
+    for (final list in listItemData.entries) {
+      // Find the category object that matches the category ID in the current item's data.
+      // 'categories' is assumed to be a Map where keys are category names
+      // and values are category objects containing an 'id'.
+      final category = categories.entries
+          .firstWhere((catItem) => (catItem.value.id == list.value['category']))
+          .value;
 
-        // Create a new GroceryItem object with the item details (id, name, quantity, category),
-        // and add it to the _loadedItems list.
-        _loadedItems.add(GroceryItem(
-          id: list.key,
-          name: list.value['name'],
-          quantity: list.value['quantity'],
-          category: category,
-        ));
-      }
+      // Create a new GroceryItem object with the item details (id, name, quantity, category),
+      // and add it to the _loadedItems list.
+      _loadedItems.add(GroceryItem(
+        id: list.key,
+        name: list.value['name'],
+        quantity: list.value['quantity'],
+        category: category,
+      ));
+    }
 
 // Update the state of the widget by setting _shoppingItems to the newly loaded list of GroceryItem objects.
 // This triggers a rebuild of the widget, ensuring the UI displays the updated list of shopping items.
-      setState(() {
-        _shoppingItems = _loadedItems;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Try again later, Page not found';
-      });
-    }
+    // setState(() {
+    //   _shoppingItems = _loadedItems;
+    //   _isLoading = false;
+    // });
+    //when using the Future widget we use return
+    return _loadScreenItems();
+
+    // no longer required
+    // catch (e) {
+    //   setState(() {
+    //     _error = 'Try again later, Page not found';
+    //   });
+    // }
   }
 
   void _addItems() async {
@@ -153,38 +157,17 @@ class _ShoppingItemsState extends State<ShoppingItems> {
 
   @override
   Widget build(BuildContext context) {
-    Widget content = const Center(child: Text('No items have been added yet'));
+    // if (_isLoading) {
+    //   content = const Center(child: CircularProgressIndicator.adaptive());
+    // }
 
-    if (_isLoading) {
-      content = const Center(child: CircularProgressIndicator.adaptive());
-    }
+    // if (_shoppingItems.isNotEmpty) {
+    //   content =
+    // }
 
-    if (_shoppingItems.isNotEmpty) {
-      content = ListView.builder(
-        itemCount: _shoppingItems.length,
-        itemBuilder: (context, index) => Dismissible(
-          onDismissed: (direction) {
-            _removeItem(_shoppingItems[index]);
-          },
-          key: ValueKey(_shoppingItems[index]),
-          child: ListTile(
-            title: Text(_shoppingItems[index].name),
-            leading: Container(
-              width: 20,
-              height: 20,
-              color: _shoppingItems[index].category.color,
-            ),
-            trailing: Text(
-              _shoppingItems[index].quantity.toString(),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (_error != null) {
-      content = Center(child: Text(_error!));
-    }
+    // if (_error != null) {
+    //   content = Center(child: Text(_error!));
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -196,7 +179,45 @@ class _ShoppingItemsState extends State<ShoppingItems> {
           )
         ],
       ),
-      body: content,
+      body: FutureBuilder(
+        future: _loadedScreenItems,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator.adaptive());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
+          }
+
+          if (snapshot.data!.isEmpty) {
+            return const Center(child: Text('No items have been added yet'));
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) => Dismissible(
+              onDismissed: (direction) {
+                _removeItem(snapshot.data![index]);
+              },
+              key: ValueKey(snapshot.data![index]),
+              child: ListTile(
+                title: Text(snapshot.data![index].name),
+                leading: Container(
+                  width: 20,
+                  height: 20,
+                  color: snapshot.data![index].category.color,
+                ),
+                trailing: Text(
+                  snapshot.data![index].quantity.toString(),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
